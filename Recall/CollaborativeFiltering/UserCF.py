@@ -90,20 +90,21 @@ class UserBasedCF():
         print('Calculate user similarity matrix success!')
 
 
-    # 针对目标用户U，找到其最相似的K个用户，产生N个推荐
+    # 针对目标用户U，找到其最相似的K个用户，产生N个推荐，已经看过的内容不在推荐（去重）
     def recommend(self, user):
         K = self.n_sim_user
         N = self.n_rec_movie
         rank = {}
         watched_movies = self.trainSet[user]
-
         # v=similar user, wuv=similar factor
         for v, wuv in sorted(self.user_sim_matrix[user].items(), key=itemgetter(1), reverse=True)[0:K]:
             for movie in self.trainSet[v]:
                 if movie in watched_movies:
-                    continue
+                    #跳过已经看过的词条
+                   continue
                 rank.setdefault(movie, 0)
-                rank[movie] += wuv
+                rank[movie] += wuv*1
+                #此处的1表示推荐喜好程度，可以结合用户的点赞、收藏等行为区分数值大小
         return sorted(rank.items(), key=itemgetter(1), reverse=True)[0:N]
 
 
